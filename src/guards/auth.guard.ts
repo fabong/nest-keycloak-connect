@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as KeycloakConnect from 'keycloak-connect';
+import * as Token from './utils/token';
 import {
   KEYCLOAK_CONNECT_OPTIONS,
   KEYCLOAK_INSTANCE,
@@ -74,10 +75,16 @@ export class AuthGuard implements CanActivate {
 
     this.logger.verbose(`User JWT: ${jwt}`);
 
+    let result: string | boolean | KeycloakConnect.Token;
     try {
-      const result = await this.keycloak.grantManager.validateAccessToken(jwt);
+      if (!this.keycloakOpts.useOfflineTokenValidation) {
+        result = await this.keycloak.grantManager.validateAccessToken(jwt);
+      } else {
+        const token: KeycloakConnect.Token = Token(jwt);
+        result = await this.keycloak.grantManager.validateToken(token);
+      }
 
-      if (typeof result === 'string') {
+      if (typeof result === 'string' || typeof result === 'object') {
         // Attach user info object
         request.user = parseToken(jwt);
         // Attach raw access token JWT extracted from bearer/cookie

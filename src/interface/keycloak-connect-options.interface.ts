@@ -25,6 +25,11 @@ export interface KeycloakConnectOptions {
   useNestLogger?: boolean;
 
   /**
+   * Use the offline token validation mode (with certificate).
+   */
+  useOfflineTokenValidation?: boolean;
+
+  /**
    * Sets the policy enforcement mode for this adapter, defaults to {@link PolicyEnforcementMode.PERMISSIVE}.
    */
   policyEnforcement?: PolicyEnforcementMode;
